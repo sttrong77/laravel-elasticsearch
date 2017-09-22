@@ -2,18 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
+
 use Illuminate\Http\Request;
 
 class ClientsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
+    protected $elatiscParams = [];
+
+    private $client;
+
+    public function __construct(Client $client){
+        $this->client = $client;
+        $this->elasticParams['index'] = env('ES_INDEX');
+        $this->elasticParams['type'] = 'clients';
+    }
+
     public function index()
     {
-        return view('clients.index');
+        $clients = $this->client->search($this->elasticParams);
+        return view('clients.index', compact('clients'));
     }
 
     /**
